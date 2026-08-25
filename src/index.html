@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <title>Storytel</title>
+
+  <script type="module" src="/scripts/index.js"></script>
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link" tabindex="0">Lompat ke Konten Utama</a>
+
+  <header>
+    <div class="main-header container">
+      <a class="brand-name" href="/#/" tabindex="0" aria-label="Storytel Beranda">Storytel</a>
+
+      <nav id="navigation-drawer" class="navigation-drawer" aria-label="Navigasi Utama">
+        <div class="navigation-drawer-header">
+          <span class="brand-name">Storytel</span>
+        </div>
+        <ul id="nav-list" class="nav-list">
+          <li>
+            <a href="#/about" class="nav-link" tabindex="0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-info-icon lucide-info">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4" />
+                <path d="M12 8h.01" />
+              </svg>
+              <span>About</span>
+            </a>
+          </li>
+          <li class="nav-separator" aria-hidden="true"></li>
+          <li class="nav-logout-item">
+            <a href="javascript:void(0)" id="logout-button" class="nav-link" tabindex="0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-log-out-icon lucide-log-out">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" x2="9" y1="12" y2="12" />
+              </svg>
+              <span>Logout</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <button id="drawer-button" class="drawer-button" aria-label="Buka menu navigasi" tabindex="0">☰</button>
+    </div>
+  </header>
+
+  <main id="main-content" class="main-content" tabindex="-1"></main>
+  <div id="backdrop" class="backdrop"></div>
+  <div id="dialog-backdrop" class="backdrop"></div>
+</body>
+
+</html>
