@@ -157,13 +157,11 @@ export async function getDetailStory({ id, token }) {
   }
 }
 
-export async function subscribeWebPush({ endpoint, keys, p256dh, auth, token }) {
+export async function subscribeWebPush({ endpoint, p256dh, auth, token }) {
   try {
     const body = {
       endpoint,
-      keys: keys || { p256dh, auth },
-      p256dh,
-      auth,
+      keys: { p256dh, auth },
     };
 
     const response = await fetch(ENDPOINTS.SUBSCRIBE, {

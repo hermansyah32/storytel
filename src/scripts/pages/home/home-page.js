@@ -4,6 +4,8 @@ import HomeMap from './components/home-map';
 import LocationPicker from './components/location-picker';
 import AddStoryDialog from './components/add-story-dialog';
 import { debounce, showFormattedDate } from '../../utils';
+import { getActiveUrlQueryParam } from '../../routes/url-parser';
+import { showBanner } from '../../utils/alert';
 
 export default class HomePage extends BasePage {
   #presenter = null;
@@ -182,6 +184,19 @@ export default class HomePage extends BasePage {
     this.closeAllMapPopups();
     this.#renderStoryList();
     this.#renderMapMarkers();
+    this.#checkAndSelectStoryFromQuery();
+  }
+
+  #checkAndSelectStoryFromQuery() {
+    const storyIdFromQuery = getActiveUrlQueryParam('storyId');
+    if (!storyIdFromQuery) return;
+
+    const targetStory = this.#stories.find((s) => s.id === storyIdFromQuery);
+    if (targetStory) {
+      this.#setActiveStory(storyIdFromQuery, true);
+    } else {
+      showBanner('Story tidak ditemukan', 'error');
+    }
   }
 
   closeAllMapPopups() {
@@ -291,6 +306,15 @@ export default class HomePage extends BasePage {
     this.#activeStoryId = storyId;
     this.#renderStoryList();
     this.#homeMap.setActiveStory(storyId, this.#stories, flyTo);
+
+    if (storyId) {
+      window.history.replaceState(null, '', `/#/?storyId=${encodeURIComponent(storyId)}`);
+    }
+
+    const activeCard = document.querySelector(`.story-card[data-id="${CSS.escape(storyId)}"]`);
+    if (activeCard) {
+      activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
     if (flyTo && window.innerWidth < 992) {
       const mapContainer = document.querySelector('.home-map-container') || document.querySelector('.home-map-wrapper');

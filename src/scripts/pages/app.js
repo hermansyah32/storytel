@@ -77,14 +77,15 @@ class App {
   }
 
   async renderPage() {
-    const url = getActiveRoute();
-    const { authorized, isAuthenticated } = checkRouteAccess(url);
+    let url = getActiveRoute();
+    const { isAuthenticated, redirectTo } = checkRouteAccess(url);
+
+    if (redirectTo) {
+      window.location.hash = redirectTo;
+      url = redirectTo;
+    }
 
     this.#updateNavigationUI(isAuthenticated);
-
-    if (!authorized) {
-      return;
-    }
 
     const page = routes[url];
     if (page) {

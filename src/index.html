@@ -26,6 +26,27 @@
           <span class="brand-name">Storytel</span>
         </div>
         <ul id="nav-list" class="nav-list">
+          <li class="nav-subscribe-item">
+            <a href="javascript:void(0)" id="subscribe-menu" class="subscribe-button nav-link" tabindex="0">
+              <svg class="unsubscribe-ring-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" class="lucide lucide-bell-icon lucide-bell">
+                <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+                <path
+                  d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+              </svg>
+              <svg class="subscribe-ring-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" class="lucide lucide-bell-ring-icon lucide-bell-ring">
+                <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+                <path d="M22 8c0-2.3-.8-4.3-2-6" />
+                <path
+                  d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+                <path d="M4 2C2.8 3.7 2 5.7 2 8" />
+              </svg>
+              <span>Subscribe</span>
+            </a>
+          </li>
           <li>
             <a href="#/about" class="nav-link" tabindex="0">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -54,7 +75,28 @@
         </ul>
       </nav>
 
-      <button id="drawer-button" class="drawer-button" aria-label="Buka menu navigasi" tabindex="0">☰</button>
+      <div class="navbar-action-buttons">
+        <button id="subscribe-button" class="subscribe-button" aria-label="Berlangganan Notifikasi" tabindex="0">
+          <svg class="unsubscribe-ring-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" class="lucide lucide-bell-icon lucide-bell">
+            <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+            <path
+              d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+          </svg>
+          <svg class="subscribe-ring-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-bell-ring-icon lucide-bell-ring">
+            <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+            <path d="M22 8c0-2.3-.8-4.3-2-6" />
+            <path
+              d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+            <path d="M4 2C2.8 3.7 2 5.7 2 8" />
+          </svg>
+          <span class="sr-only">Subscribe</span>
+        </button>
+        <button id="drawer-button" class="drawer-button" aria-label="Buka menu navigasi" tabindex="0">☰</button>
+      </div>
     </div>
   </header>
 

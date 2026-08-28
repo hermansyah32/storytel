@@ -2,6 +2,8 @@
 import '../styles/styles.css';
 
 import App from './pages/app';
+import { setupSubscription } from './utils/notification';
+import swRegister from './utils/sw-register';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const app = new App({
@@ -11,6 +13,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     backdrop: document.querySelector('#backdrop'),
   });
   await app.renderPage();
+  await swRegister();
+  await setupSubscription();
 
   window.addEventListener('hashchange', async () => {
     await app.renderPage();

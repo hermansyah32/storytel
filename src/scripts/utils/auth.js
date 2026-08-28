@@ -1,4 +1,5 @@
 import { getCookie, removeCookie, setCookie } from './index';
+import logger from './logger';
 
 export function isUserAuthenticated() {
   const token = getAuthToken();
@@ -17,17 +18,15 @@ export function checkRouteAccess(url) {
   if (!authenticated) {
     clearAuthData();
     if (!isPublicRoute(url)) {
-      window.location.href = '/#/login';
-      return { authorized: false, isAuthenticated: false };
+      return { authorized: false, isAuthenticated: false, redirectTo: '/login' };
     }
   }
 
   if (authenticated && isPublicRoute(url)) {
-    window.location.href = '/';
-    return { authorized: false, isAuthenticated: true };
+    return { authorized: false, isAuthenticated: true, redirectTo: '/' };
   }
 
-  return { authorized: true, isAuthenticated: authenticated };
+  return { authorized: true, isAuthenticated: authenticated, redirectTo: null };
 }
 
 export function getAuthToken() {
@@ -36,7 +35,7 @@ export function getAuthToken() {
 
 export function setAuthToken(token, days = 7) {
   if (!token || typeof token !== 'string') {
-    console.error('Invalid token provided to setAuthToken');
+    logger.critical('Invalid token provided to setAuthToken');
     return;
   }
   setCookie('token', token, days);
@@ -56,7 +55,7 @@ export function getuserData() {
     }
     return parsedUserData;
   } catch (error) {
-    console.error(error);
+    logger.critical(error);
     localStorage.removeItem('user');
     return null;
   }
@@ -64,7 +63,7 @@ export function getuserData() {
 
 export function saveUserData(userData) {
   if (!userData || typeof userData !== 'object') {
-    console.error('Invalid user data provided to saveUserData');
+    logger.critical('Invalid user data provided to saveUserData');
     return;
   }
 
@@ -77,7 +76,7 @@ export function saveUserData(userData) {
 
     localStorage.setItem('user', JSON.stringify(dataToStore));
   } catch (error) {
-    console.error('Failed to save user data to localStorage:', error);
+    logger.critical('Failed to save user data to localStorage:', error);
   }
 }
 
