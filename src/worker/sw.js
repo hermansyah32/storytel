@@ -1,72 +1,72 @@
+self.__WB_DISABLE_DEV_LOGS = true;
+
+import { registerRoute } from 'workbox-routing';
+import { NetworkFirst } from 'workbox-strategies';
+import { ExpirationPlugin } from 'workbox-expiration';
+import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import CONFIG from '../scripts/config';
 import logger from '../scripts/utils/logger';
 
-const CACHE_NAME = 'storytel-v1';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/favicon.png',
-];
+// Skip waiting & claim clients immediately
+self.skipWaiting();
+self.clients.claim();
 
-// Install Event: Pre-cache static assets
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      logger.info('[Service Worker] Caching static assets');
-      return cache.addAll(ASSETS_TO_CACHE);
+// Caching Halaman HTML (Network First)
+registerRoute(
+  ({ request }) => request.mode === 'navigate',
+  new NetworkFirst({
+    cacheName: 'storytel-pages-cache',
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [0, 200],
+      }),
+    ],
+  })
+);
+
+// Caching Aset Statis (JS, CSS, Gambar, Font) (Network First)
+registerRoute(
+  ({ request, url }) =>
+    request.destination === 'script' ||
+    request.destination === 'style' ||
+    request.destination === 'image' ||
+    request.destination === 'font' ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css'),
+  new NetworkFirst({
+    cacheName: 'storytel-assets-cache',
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [0, 200],
+      }),
+      new ExpirationPlugin({
+        maxEntries: 60,
+        maxAgeSeconds: 30 * 24 * 60 * 60,
+      }),
+    ],
+  })
+);
+
+// Caching Respon API GET (Network First)
+if (CONFIG.API_URL) {
+  registerRoute(
+    ({ url, request }) => request.method === 'GET' && url.href.includes(CONFIG.API_URL),
+    new NetworkFirst({
+      cacheName: 'storytel-api-cache',
+      plugins: [
+        new CacheableResponsePlugin({
+          statuses: [0, 200],
+        }),
+        new ExpirationPlugin({
+          maxEntries: 100,
+          maxAgeSeconds: 7 * 24 * 60 * 60,
+        }),
+      ],
     })
   );
-  self.skipWaiting();
-});
+}
 
-// Activate Event: Cleanup old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
-      );
-    })
-  );
-  self.clients.claim();
-});
-
-// Fetch Event: Network-first strategy with cache fallback
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-
-  // Skip non-GET requests and API calls from caching
-  if (request.method !== 'GET' || request.url.includes('/api/') || (CONFIG.API_URL && request.url.includes(CONFIG.API_URL))) {
-    return;
-  }
-
-  event.respondWith(
-    fetch(request)
-      .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseToCache);
-          });
-        }
-        return networkResponse;
-      })
-      .catch(() => {
-        return caches.match(request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          if (request.headers.get('accept')?.includes('text/html')) {
-            return caches.match('/index.html');
-          }
-        });
-      })
-  );
-});
-
-// Push Event: Handle Web Push Notifications
+// Push Notification Event Handler
 self.addEventListener('push', (event) => {
   logger.info('[Service Worker] Push Notification Received');
 
@@ -101,7 +101,6 @@ self.addEventListener('push', (event) => {
       }
     }
 
-    // Broadcast message to all open window clients to refresh story list & markers
     const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     for (const client of clientList) {
       client.postMessage({
@@ -118,7 +117,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(handlePush());
 });
 
-// Notification Click Event
+// Notification Click Handler
 self.addEventListener('notificationclick', (event) => {
   logger.info('[Service Worker] Notification Click Received');
   event.notification.close();

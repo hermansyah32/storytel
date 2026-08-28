@@ -1539,3 +1539,32 @@ dialog.add-story-dialog {
     transition-duration: 0.1s !important;
   }
 }
+
+.offline-snackbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+  background-color: var(--danger-color, #dc2626);
+  color: #ffffff;
+  padding: 0.75rem 0;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+  border-radius: 0;
+  animation: slideUpStickyBanner 0.3s ease-out forwards;
+}
+
+.offline-snackbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  width: 100%;
+}
+
+.offline-snackbar.hidden {
+  display: none !important;
+}
