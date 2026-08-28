@@ -69,7 +69,7 @@ export default class HomeMap {
     if (!containerEl) return;
 
     containerEl.setAttribute('tabindex', '-1');
-    const focusableEls = containerEl.querySelectorAll('a, button, [tabindex]');
+    const focusableEls = containerEl.querySelectorAll('a:not(.leaflet-popup *), button:not(.leaflet-popup *)');
     focusableEls.forEach((el) => {
       el.setAttribute('tabindex', '-1');
     });
@@ -134,7 +134,7 @@ export default class HomeMap {
     this.#disableMapKeyboardFocus();
   }
 
-  setActiveStory(storyId, stories = [], flyTo = false) {
+  setActiveStory(storyId, stories = [], flyTo = true) {
     const targetStory = stories.find((s) => s.id === storyId);
 
     this.#markers.forEach(({ id, marker }) => {
@@ -152,7 +152,7 @@ export default class HomeMap {
       if (isCurrent) {
         marker.openPopup();
 
-        if (flyTo && targetStory && this.#map) {
+        if (flyTo && targetStory && targetStory.lat !== null && targetStory.lat !== undefined && targetStory.lon !== null && targetStory.lon !== undefined && this.#map) {
           const targetZoom = Math.max(this.#map.getZoom(), 10);
           const point = this.#map.project([targetStory.lat, targetStory.lon], targetZoom);
           const targetPoint = L.point(point.x, point.y - 180);
