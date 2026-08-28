@@ -1,4 +1,5 @@
 import StoryModel from '../../models/story-model';
+import { showBanner } from '../../utils/alert';
 import { getAuthToken, clearAuthData } from '../../utils/auth';
 
 export default class HomePresenter {
@@ -52,9 +53,7 @@ export default class HomePresenter {
         if (typeof this.#view.closeDialog === 'function') {
           this.#view.closeDialog();
         }
-        if (typeof this.#view.showAddStorySuccess === 'function') {
-          this.#view.showAddStorySuccess('Berhasil menambahkan story!');
-        }
+        showBanner('Berhasil menambahkan story!', 'success');
         await this.onStoryLoad();
       } else {
         throw new Error(response?.message || 'Gagal menambahkan story baru.');
@@ -63,11 +62,8 @@ export default class HomePresenter {
       if (typeof this.#view.closeDialog === 'function') {
         this.#view.closeDialog();
       }
-      if (typeof this.#view.showAddStoryError === 'function') {
-        this.#view.showAddStoryError(error.message || 'Terjadi kesalahan saat mengirim story.');
-      } else if (typeof this.#view.showError === 'function') {
-        this.#view.showError(error.message || 'Terjadi kesalahan saat mengirim story.');
-      }
+
+      showBanner(error.message || 'Terjadi kesalahan saat mengirim story.', 'error');
     }
   }
 }

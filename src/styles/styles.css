@@ -20,6 +20,9 @@
   --danger-color: #BA1A1A;
   --danger-background-color: #e4c7c7;
 
+  --warning-color: #ea580c;
+  --warning-background-color: #ffedd5;
+
   --success-color: #10b981;
   --success-dark-color: #059669;
 
@@ -190,7 +193,6 @@ header {
 .navigation-drawer {
   min-height: 100vh;
   width: 80%;
-  max-width: 312px;
   padding: 0 0.75rem 0.75rem 1rem;
   background-color: var(--white-color);
   position: fixed;
@@ -214,6 +216,12 @@ header {
   justify-content: center;
   align-items: center;
   box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.navbar-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .drawer-button {
@@ -269,7 +277,7 @@ header {
   transition: background-color 0.2s ease, color 0.2s ease, outline 0.2s ease;
 }
 
-.nav-list li:hover:not(.nav-separator):not(.nav-logout-item) a {
+.nav-list li:hover:not(.nav-separator):not(.nav-logout-item):not(.nav-subscribe-item) a {
   background-color: var(--secondary-color);
   color: var(--primary-dark-color);
 }
@@ -301,6 +309,76 @@ header {
 .nav-list li.nav-logout-item a:focus-visible svg {
   color: var(--danger-color);
   stroke: var(--danger-color);
+}
+
+.nav-subscribe-item {
+  display: none !important;
+}
+
+.nav-list li.nav-subscribe-item:hover a,
+.nav-list li.nav-subscribe-item:hover svg {
+  background-color: var(--warning-background-color);
+  color: var(--warning-color);
+  stroke: var(--warning-color);
+}
+
+.nav-list li.nav-subscribe-item.active,
+.nav-list li.nav-subscribe-item a:focus,
+.nav-list li.nav-subscribe-item a:focus-visible {
+  background-color: var(--warning-background-color);
+  color: var(--warning-color);
+  outline: 3px solid var(--warning-color) !important;
+  outline-offset: 2px !important;
+}
+
+.nav-list li.nav-subscribe-item.active a:focus svg,
+.nav-list li.nav-subscribe-item.active a:focus-visible svg {
+  color: var(--warning-color);
+  stroke: var(--warning-color);
+}
+
+button.subscribe-button {
+  padding: 8px;
+  border: solid 1px var(--outline-color);
+  border-radius: 50%;
+  background-color: transparent;
+  height: 49px;
+  width: 49px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--dark-text-color);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+button.subscribe-button svg {
+  stroke: currentColor;
+}
+
+button.subscribe-button:hover,
+button.subscribe-button.active {
+  background-color: var(--warning-background-color);
+  color: var(--warning-color);
+  border-color: var(--warning-color);
+}
+
+button.subscribe-button:focus,
+button.subscribe-button:focus-visible {
+  outline: 3px solid var(--warning-color) !important;
+  outline-offset: 2px !important;
+}
+
+.subscribe-button .subscribe-ring-icon {
+  display: none;
+}
+
+.subscribe-button.active .subscribe-ring-icon {
+  display: block !important;
+}
+
+.subscribe-button.active .unsubscribe-ring-icon {
+  display: none !important;
 }
 
 .nav-separator {
@@ -519,6 +597,11 @@ form .error.error-message:focus-visible {
   width: 100%;
 }
 
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+}
+
 /* Badges */
 .badge {
   display: inline-flex;
@@ -571,11 +654,24 @@ form .error.error-message:focus-visible {
   border: 1px solid var(--danger-color);
 }
 
+.alert-warning {
+  background-color: var(--warning-background-color);
+  color: var(--warning-color);
+  border: 1px solid var(--warning-color);
+}
+
+.alert-info {
+  background-color: var(--secondary-color);
+  color: var(--primary-dark-color);
+  border: 1px solid var(--primary-color);
+}
+
 @keyframes fadeInDown {
   from {
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -808,7 +904,7 @@ form .error.error-message:focus-visible {
 /* Add Story Panel & Location Picker */
 .add-story-panel {
   position: relative;
-  z-index: 2000;
+  z-index: 10;
   overflow: visible;
 }
 
@@ -821,13 +917,13 @@ form .error.error-message:focus-visible {
   display: flex;
   gap: 0.5rem;
   position: relative;
-  z-index: 2005;
+  z-index: 11;
 }
 
 .manual-input-wrapper {
   flex: 1;
   position: relative;
-  z-index: 2010;
+  z-index: 12;
 }
 
 .manual-city-input {
@@ -865,9 +961,11 @@ form .error.error-message:focus-visible {
   0% {
     box-shadow: 0 0 0 0 rgba(0, 119, 194, 0.6);
   }
+
   70% {
     box-shadow: 0 0 0 8px rgba(0, 119, 194, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(0, 119, 194, 0);
   }
@@ -885,7 +983,7 @@ form .error.error-message:focus-visible {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   border: 1px solid var(--outline-color);
   list-style: none;
-  z-index: 2020;
+  z-index: 20;
   margin: 0;
   padding: 0.25rem 0;
 }
@@ -1025,6 +1123,7 @@ form .error.error-message:focus-visible {
   box-shadow: 0 6px 24px var(--shadow-color);
   border: 1px solid var(--terliary-color);
   position: relative;
+  z-index: 10;
 }
 
 #map {
@@ -1270,7 +1369,14 @@ dialog.add-story-dialog {
 }
 
 /* ==========================================
-   9. MEDIA QUERIES & RESPONSIVE DESIGN
+   9. Alert banner
+   ========================================== */
+.alert {
+  margin-bottom: 1.25rem;
+}
+
+/* ==========================================
+   10. MEDIA QUERIES & RESPONSIVE DESIGN
    ========================================== */
 
 /* Extra Small Screens */
@@ -1358,8 +1464,16 @@ dialog.add-story-dialog {
     align-self: center;
   }
 
-  .drawer-button {
+  .navbar-action-buttons {
     display: none;
+  }
+
+  .nav-subscribe-item {
+    display: block !important;
+  }
+
+  button.subscribe-button {
+    display: none !important;
   }
 }
 
@@ -1413,6 +1527,7 @@ dialog.add-story-dialog {
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
+
   ::view-transition-group(*),
   ::view-transition-old(*),
   ::view-transition-new(*) {

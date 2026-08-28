@@ -5,6 +5,9 @@ export default class AboutPage extends BasePage {
     return `
       <section class="container about-page-section">
         <h1 class="page-title about-page-title">About</h1>
+        
+        <!-- Feedback Banner -->
+        <div id="banner-feedback" class="alert alert-success hidden" aria-live="polite"></div>
 
         <div class="card about-card" role="region" aria-label="Tentang Hermansyah">
           <div class="about-header">

@@ -27,6 +27,10 @@ export default class HomePage extends BasePage {
     return `
       <section class="container home-page-section">
         <h1 class="page-title">Beranda</h1>
+
+        <!-- Feedback Banner -->
+        <div id="banner-feedback" class="alert alert-success hidden" aria-live="polite"></div>
+
         <div class="home-layout">
           <aside class="card home-sidebar" role="region" aria-label="Daftar Story">
             <div class="card-header">
@@ -57,9 +61,6 @@ export default class HomePage extends BasePage {
           </aside>
 
           <div class="home-map-wrapper">
-            <!-- Feedback Banner Sukses / Error Tambah Story -->
-            <div id="story-add-feedback" class="alert alert-success hidden" aria-live="polite"></div>
-
             <div class="card add-story-panel" role="region" aria-label="Tambah story lokasi manual">
               <div class="card-header">
                 <span class="card-icon" aria-hidden="true">📍</span>
@@ -183,26 +184,6 @@ export default class HomePage extends BasePage {
     this.#renderMapMarkers();
   }
 
-  showAddStorySuccess(message = 'Berhasil menambahkan story!') {
-    const feedbackEl = document.getElementById('story-add-feedback');
-    if (feedbackEl) {
-      feedbackEl.className = 'alert alert-success';
-      feedbackEl.innerHTML = `<span>${message}</span>`;
-      feedbackEl.classList.remove('hidden');
-      setTimeout(() => feedbackEl.classList.add('hidden'), 5000);
-    }
-  }
-
-  showAddStoryError(message = 'Gagal menambahkan story.') {
-    const feedbackEl = document.getElementById('story-add-feedback');
-    if (feedbackEl) {
-      feedbackEl.className = 'alert alert-danger';
-      feedbackEl.innerHTML = `<span>${message}</span>`;
-      feedbackEl.classList.remove('hidden');
-      setTimeout(() => feedbackEl.classList.add('hidden'), 5000);
-    }
-  }
-
   closeAllMapPopups() {
     if (this.#homeMap) {
       this.#homeMap.closeAllPopups();
@@ -226,17 +207,6 @@ export default class HomePage extends BasePage {
 
   hideLoading() {
     // Handled by showStories
-  }
-
-  showError(message) {
-    const storyListEl = document.getElementById('story-list');
-    if (storyListEl) {
-      storyListEl.innerHTML = `
-        <div style="text-align: center; padding: 2rem; color: var(--danger-color);">
-          <p>${message}</p>
-        </div>
-      `;
-    }
   }
 
   #getFilteredStories() {
@@ -317,7 +287,7 @@ export default class HomePage extends BasePage {
     });
   }
 
-  #setActiveStory(storyId, flyTo = false) {
+  #setActiveStory(storyId, flyTo = true) {
     this.#activeStoryId = storyId;
     this.#renderStoryList();
     this.#homeMap.setActiveStory(storyId, this.#stories, flyTo);
