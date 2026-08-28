@@ -815,6 +815,137 @@ form .error.error-message:focus-visible {
   border-color: var(--primary-color);
 }
 
+/* Story Tabs (WAI-ARIA Accessible Tabs) */
+.story-tabs-container {
+  margin-bottom: 0.85rem;
+}
+
+.tab-list {
+  display: flex;
+  gap: 0.5rem;
+  background-color: var(--secondary-color);
+  padding: 0.25rem;
+  border-radius: 10px;
+  border: 1px solid var(--outline-color);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  font-family: inherit;
+}
+
+.tab-btn:hover {
+  color: var(--primary-color);
+}
+
+.tab-btn.active,
+.tab-btn[aria-selected="true"] {
+  background-color: var(--white-color);
+  color: var(--primary-dark-color);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.tab-btn:focus,
+.tab-btn:focus-visible {
+  outline: 3px solid var(--primary-color) !important;
+  outline-offset: 1px !important;
+}
+
+/* Bookmark Button & Delete Action on Story Card */
+.story-card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  overflow: visible;
+}
+
+.story-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.btn-bookmark {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--outline-color);
+  padding: 0.25rem 0.4rem;
+  margin: 2px;
+  border-radius: 8px;
+  transition: transform 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  line-height: 1;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.btn-bookmark:hover {
+  transform: scale(1.2);
+  color: #f59e0b;
+}
+
+.btn-bookmark.bookmarked {
+  color: #f59e0b;
+}
+
+.btn-bookmark:focus,
+.btn-bookmark:focus-visible {
+  outline: 3px solid var(--primary-color) !important;
+  outline-offset: 0px !important;
+  background-color: var(--secondary-color);
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.btn-delete-bookmark {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--danger-color, #dc2626);
+  padding: 0.25rem 0.4rem;
+  margin: 2px;
+  border-radius: 8px;
+  transition: transform 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+  line-height: 1;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-delete-bookmark:hover {
+  transform: scale(1.15);
+  background-color: var(--danger-background-color, #fef2f2);
+}
+
+.btn-delete-bookmark:focus,
+.btn-delete-bookmark:focus-visible {
+  outline: 3px solid var(--danger-color, #dc2626) !important;
+  outline-offset: 0px !important;
+  background-color: var(--danger-background-color, #fef2f2);
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px var(--danger-color, #dc2626);
+}
+
 .story-list {
   display: flex;
   flex-direction: column;
@@ -870,7 +1001,7 @@ form .error.error-message:focus-visible {
   flex-direction: column;
   justify-content: center;
   gap: 0.25rem;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .story-card-title {
@@ -1309,7 +1440,9 @@ dialog.add-story-dialog {
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
 }
 
 .add-story-form {

@@ -3,6 +3,8 @@ import HomePresenter from './home-presenter';
 import HomeMap from './components/home-map';
 import LocationPicker from './components/location-picker';
 import AddStoryDialog from './components/add-story-dialog';
+import AppDialog from '../../components/app-dialog';
+import StoryModel from '../../models/story-model';
 import { debounce, showFormattedDate } from '../../utils';
 import { getActiveUrlQueryParam } from '../../routes/url-parser';
 import { showBanner } from '../../utils/alert';
@@ -10,6 +12,9 @@ import { showBanner } from '../../utils/alert';
 export default class HomePage extends BasePage {
   #presenter = null;
   #stories = [];
+  #bookmarkedStories = [];
+  #bookmarkedStoryIds = new Set();
+  #activeTab = 'all'; // 'all' | 'bookmarked'
   #activeStoryId = null;
   #searchQuery = '';
 
@@ -42,6 +47,35 @@ export default class HomePage extends BasePage {
             </div>
 
             <div class="card-body home-sidebar-body">
+              <div class="story-tabs-container">
+                <div role="tablist" aria-label="Kategori story" class="tab-list">
+                  <button
+                    type="button"
+                    role="tab"
+                    id="tab-all-stories"
+                    aria-selected="true"
+                    aria-controls="story-list"
+                    tabindex="0"
+                    class="tab-btn active"
+                    data-tab="all"
+                  >
+                    Semua Story
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    id="tab-bookmarked-stories"
+                    aria-selected="false"
+                    aria-controls="story-list"
+                    tabindex="0"
+                    class="tab-btn"
+                    data-tab="bookmarked"
+                  >
+                    Tersimpan
+                  </button>
+                </div>
+              </div>
+
               <div class="home-filter-box">
                 <label for="search-story" class="sr-only">Cari story</label>
                 <input 
@@ -56,7 +90,7 @@ export default class HomePage extends BasePage {
                 </a>
               </div>
 
-              <div id="story-list" class="story-list">
+              <div id="story-list" class="story-list" role="region" aria-live="polite">
                 <!-- Stories will be rendered here -->
               </div>
             </div>
@@ -155,6 +189,8 @@ export default class HomePage extends BasePage {
   }
 
   #bindEvents() {
+    this.#bindTabEvents();
+
     const searchInput = document.getElementById('search-story');
     if (searchInput) {
       const handleSearch = debounce((e) => {
@@ -178,19 +214,77 @@ export default class HomePage extends BasePage {
     }
   }
 
-  showStories(stories) {
+  #bindTabEvents() {
+    const tabButtons = Array.from(document.querySelectorAll('[role="tab"]'));
+    if (tabButtons.length === 0) return;
+
+    const switchTab = async (targetTabBtn) => {
+      tabButtons.forEach((btn) => {
+        const isSelected = btn === targetTabBtn;
+        btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        btn.setAttribute('tabindex', '0');
+        if (isSelected) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      this.#activeTab = targetTabBtn.getAttribute('data-tab') || 'all';
+      await this.#loadBookmarks();
+      this.#renderStoryList();
+      this.#renderMapMarkers();
+    };
+
+    tabButtons.forEach((tabBtn, index) => {
+      tabBtn.addEventListener('click', () => switchTab(tabBtn));
+
+      tabBtn.addEventListener('keydown', (e) => {
+        let targetIndex = null;
+        if (e.key === 'ArrowRight') {
+          targetIndex = (index + 1) % tabButtons.length;
+        } else if (e.key === 'ArrowLeft') {
+          targetIndex = (index - 1 + tabButtons.length) % tabButtons.length;
+        } else if (e.key === 'Home') {
+          targetIndex = 0;
+        } else if (e.key === 'End') {
+          targetIndex = tabButtons.length - 1;
+        }
+
+        if (targetIndex !== null) {
+          e.preventDefault();
+          tabButtons[targetIndex].focus();
+          switchTab(tabButtons[targetIndex]);
+        }
+      });
+    });
+  }
+
+  async showStories(stories) {
     this.#stories = stories || [];
+    await this.#loadBookmarks();
     this.closeAllMapPopups();
     this.#renderStoryList();
     this.#renderMapMarkers();
     this.#checkAndSelectStoryFromQuery();
   }
 
+  async #loadBookmarks() {
+    try {
+      this.#bookmarkedStories = await StoryModel.getBookmarkedStories();
+      this.#bookmarkedStoryIds = new Set(this.#bookmarkedStories.map((b) => b.id));
+    } catch (err) {
+      this.#bookmarkedStories = [];
+      this.#bookmarkedStoryIds = new Set();
+    }
+  }
+
   #checkAndSelectStoryFromQuery() {
     const storyIdFromQuery = getActiveUrlQueryParam('storyId');
     if (!storyIdFromQuery) return;
 
-    const targetStory = this.#stories.find((s) => s.id === storyIdFromQuery);
+    const allAvailable = this.#stories.concat(this.#bookmarkedStories);
+    const targetStory = allAvailable.find((s) => s.id === storyIdFromQuery);
     if (targetStory) {
       this.#setActiveStory(storyIdFromQuery, true);
     } else {
@@ -224,7 +318,8 @@ export default class HomePage extends BasePage {
   }
 
   #getFilteredStories() {
-    return this.#stories.filter((story) => {
+    const source = this.#activeTab === 'bookmarked' ? this.#bookmarkedStories : this.#stories;
+    return source.filter((story) => {
       const nameMatch = story.name ? story.name.toLowerCase().includes(this.#searchQuery) : false;
       const descMatch = story.description ? story.description.toLowerCase().includes(this.#searchQuery) : false;
       return nameMatch || descMatch;
@@ -238,9 +333,14 @@ export default class HomePage extends BasePage {
     const filtered = this.#getFilteredStories();
 
     if (filtered.length === 0) {
+      const emptyMsg =
+        this.#activeTab === 'bookmarked'
+          ? 'Belum ada story yang disimpan ke bookmark.'
+          : 'Tidak ada story ditemukan.';
+
       storyListEl.innerHTML = `
         <div style="text-align: center; padding: 2rem; color: var(--text-color);">
-          <p>Tidak ada story ditemukan.</p>
+          <p>${emptyMsg}</p>
         </div>
       `;
       return;
@@ -249,6 +349,7 @@ export default class HomePage extends BasePage {
     storyListEl.innerHTML = filtered
       .map((story) => {
         const isActive = story.id === this.#activeStoryId ? 'active' : '';
+        const isBookmarked = this.#bookmarkedStoryIds.has(story.id);
         const hasLocation = story.lat !== null && story.lat !== undefined && story.lon !== null && story.lon !== undefined;
         const formattedDate = showFormattedDate(story.createdAt);
 
@@ -261,8 +362,40 @@ export default class HomePage extends BasePage {
             aria-label="Lihat story ${story.name}"
           >
             <img src="${story.photoUrl}" alt="${story.name}" class="story-card-thumb" />
-            <div class="story-card-content">
-              <h3 class="story-card-title">${story.name}</h3>
+            <div class="story-card-content" style="flex: 1; min-width: 0;">
+              <div class="story-card-header-row">
+                <h3 class="story-card-title">${story.name}</h3>
+                <div class="story-card-actions">
+                  <button
+                    type="button"
+                    class="btn-bookmark ${isBookmarked ? 'bookmarked' : ''}"
+                    data-bookmark-id="${story.id}"
+                    aria-label="${isBookmarked ? 'Story tersimpan ' + story.name : 'Simpan bookmark ' + story.name}"
+                    title="${isBookmarked ? 'Story tersimpan' : 'Simpan story'}"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="${isBookmarked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star" aria-hidden="true">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                  </button>
+                  ${isBookmarked ? `
+                    <button
+                      type="button"
+                      class="btn-delete-bookmark"
+                      data-delete-bookmark-id="${story.id}"
+                      aria-label="Hapus bookmark ${story.name}"
+                      title="Hapus dari tersimpan"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2" aria-hidden="true">
+                        <path d="M3 6h18"/>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                        <line x1="10" x2="10" y1="11" y2="17"/>
+                        <line x1="14" x2="14" y1="11" y2="17"/>
+                      </svg>
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
               <p class="story-card-desc">${story.description}</p>
               <div class="story-card-meta">
                 <span>📅 ${formattedDate}</span>
@@ -280,11 +413,70 @@ export default class HomePage extends BasePage {
         this.#setActiveStory(storyId, true);
       };
 
-      card.addEventListener('click', handleActivate);
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-bookmark') || e.target.closest('.btn-delete-bookmark')) return;
+        handleActivate();
+      });
+
       card.addEventListener('keydown', (e) => {
+        if (e.target.closest('.btn-bookmark') || e.target.closest('.btn-delete-bookmark')) return;
         if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
           e.preventDefault();
           handleActivate();
+        }
+      });
+    });
+
+    storyListEl.querySelectorAll('.btn-delete-bookmark').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const storyId = btn.getAttribute('data-delete-bookmark-id');
+        const allAvailable = this.#stories.concat(this.#bookmarkedStories);
+        const targetStory = allAvailable.find((s) => s.id === storyId);
+
+        if (!targetStory) return;
+
+        AppDialog.showConfirm({
+          title: 'Hapus Bookmark',
+          message: `Apakah Anda yakin ingin menghapus "${targetStory.name}" dari daftar bookmark tersimpan?`,
+          onConfirm: async () => {
+            await StoryModel.unbookmarkStory(storyId);
+            showBanner(`Bookmark "${targetStory.name}" telah dihapus.`, 'info');
+            await this.#loadBookmarks();
+            this.#renderStoryList();
+            this.#renderMapMarkers();
+          },
+        });
+      });
+    });
+
+    storyListEl.querySelectorAll('.btn-bookmark').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const storyId = btn.getAttribute('data-bookmark-id');
+        const allAvailable = this.#stories.concat(this.#bookmarkedStories);
+        const targetStory = allAvailable.find((s) => s.id === storyId);
+
+        if (!targetStory) return;
+
+        if (this.#bookmarkedStoryIds.has(storyId)) {
+          AppDialog.showConfirm({
+            title: 'Hapus Bookmark',
+            message: `Apakah Anda yakin ingin menghapus "${targetStory.name}" dari daftar bookmark tersimpan?`,
+            onConfirm: async () => {
+              await StoryModel.unbookmarkStory(storyId);
+              showBanner(`Bookmark "${targetStory.name}" telah dihapus.`, 'info');
+              await this.#loadBookmarks();
+              this.#renderStoryList();
+              this.#renderMapMarkers();
+            },
+          });
+        } else {
+          await StoryModel.bookmarkStory(targetStory);
+          showBanner(`Story "${targetStory.name}" berhasil disimpan ke bookmark!`, 'success');
+          await this.#loadBookmarks();
+          this.#renderStoryList();
+          this.#renderMapMarkers();
         }
       });
     });
@@ -304,7 +496,8 @@ export default class HomePage extends BasePage {
   #setActiveStory(storyId, flyTo = true) {
     this.#activeStoryId = storyId;
     this.#renderStoryList();
-    this.#homeMap.setActiveStory(storyId, this.#stories, flyTo);
+    const allAvailable = this.#stories.concat(this.#bookmarkedStories);
+    this.#homeMap.setActiveStory(storyId, allAvailable, flyTo);
 
     if (storyId) {
       window.history.replaceState(null, '', `/#/?storyId=${encodeURIComponent(storyId)}`);

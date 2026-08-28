@@ -5,12 +5,12 @@ import {
   addGuestStory as apiAddGuestStory,
 } from '../data/api';
 import {
-  getAllStoriesFromDB,
-  getStoryFromDB,
-  putStory,
-  putStories,
+  addBookmark,
+  deleteBookmark,
+  getAllBookmarks,
+  getBookmarkById,
+  isBookmarked,
 } from '../utils/indexed-db';
-import logger from '../utils/logger';
 
 export default class StoryModel {
   constructor({ id, name, description, photoUrl, createdAt, lat, lon }) {
@@ -24,79 +24,50 @@ export default class StoryModel {
   }
 
   static async getAllStories(options) {
-    try {
-      const response = await apiGetAllStories(options);
-      if (!response.error && Array.isArray(response.listStory)) {
-        // Cache API response stories to IndexedDB
-        await putStories(response.listStory);
-
-        // Fetch cached stories from IndexedDB
-        const cachedStories = await getAllStoriesFromDB();
-        const finalStories = cachedStories.length > 0 ? cachedStories : response.listStory;
-
-        // Sort descending by createdAt (newest first)
-        finalStories.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-
-        return {
-          ...response,
-          data: finalStories.map((item) => new StoryModel(item)),
-        };
-      }
-    } catch (error) {
-      logger.warning('API error/offline, fetching stories from IndexedDB:', error);
-    }
-
-    // Fallback to IndexedDB cache when offline or API request fails
-    const localStories = await getAllStoriesFromDB();
-    if (localStories && localStories.length > 0) {
-      localStories.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    const response = await apiGetAllStories(options);
+    if (!response.error && Array.isArray(response.listStory)) {
       return {
-        error: false,
-        message: 'Mengambil data dari penyimpanan lokal (IndexedDB)',
-        data: localStories.map((item) => new StoryModel(item)),
+        ...response,
+        data: response.listStory.map((item) => new StoryModel(item)),
       };
     }
-
-    return { error: true, message: 'Gagal memuat story dari server maupun penyimpanan lokal.' };
+    return response;
   }
 
   static async getDetailStory(options) {
-    try {
-      const response = await apiGetDetailStory(options);
-      if (!response.error && response.story) {
-        // Cache detail story to IndexedDB
-        await putStory(response.story);
-        return {
-          ...response,
-          data: new StoryModel(response.story),
-        };
-      }
-    } catch (error) {
-      logger.warning('API error/offline, fetching story detail from IndexedDB:', error);
+    const response = await apiGetDetailStory(options);
+    if (!response.error && response.story) {
+      return {
+        ...response,
+        data: new StoryModel(response.story),
+      };
     }
-
-    // Fallback to IndexedDB cache
-    if (options && options.id) {
-      const localStory = await getStoryFromDB(options.id);
-      if (localStory) {
-        return {
-          error: false,
-          message: 'Mengambil detail story dari penyimpanan lokal (IndexedDB)',
-          data: new StoryModel(localStory),
-        };
-      }
-    }
-
-    return { error: true, message: 'Gagal memuat detail story.' };
+    return response;
   }
 
   static async addStory(storyData, token) {
-    const response = await apiAddStory({ ...storyData, token });
-    return response;
+    return await apiAddStory({ ...storyData, token });
   }
 
   static async addGuestStory(storyData) {
-    const response = await apiAddGuestStory({ ...storyData });
-    return response;
+    return await apiAddGuestStory({ ...storyData });
+  }
+
+  // Bookmark Operations via IndexedDB
+  static async bookmarkStory(story) {
+    return await addBookmark(story);
+  }
+
+  static async unbookmarkStory(id) {
+    return await deleteBookmark(id);
+  }
+
+  static async getBookmarkedStories() {
+    const bookmarks = await getAllBookmarks();
+    return bookmarks.map((item) => new StoryModel(item));
+  }
+
+  static async isStoryBookmarked(id) {
+    return await isBookmarked(id);
   }
 }

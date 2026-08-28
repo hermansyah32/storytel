@@ -36,7 +36,7 @@ export default class AppDialog {
       if (typeof dialogEl.close === 'function') {
         try {
           dialogEl.close();
-        } catch (_) {}
+        } catch (_) { }
       }
       dialogEl.remove();
     });
@@ -68,7 +68,7 @@ export default class AppDialog {
           },
         },
         {
-          text: 'Ya, Lanjutkan',
+          text: 'Ya',
           type: 'primary',
           onClick: (d) => {
             d.close();
@@ -158,7 +158,7 @@ export default class AppDialog {
       if (typeof dialogEl.close === 'function') {
         try {
           dialogEl.close();
-        } catch (_) {}
+        } catch (_) { }
       }
       dialogEl.remove();
     };

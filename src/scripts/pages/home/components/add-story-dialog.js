@@ -70,7 +70,7 @@ export default class AddStoryDialog extends AppDialog {
             </div>
           </div>
 
-          <div class="dialog-actions" style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <div class="dialog-actions">
             <button type="button" id="btn-cancel-story" class="btn btn-danger" tabindex="0">Batal</button>
 
             <button type="submit" id="btn-submit-story" class="btn btn-primary" tabindex="0">
