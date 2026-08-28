@@ -1,4 +1,5 @@
 import CONFIG from '../config';
+import { setOfflineMode } from '../utils/network-status';
 
 const ENDPOINTS = {
   REGISTER: `${CONFIG.API_URL}/register`,
@@ -129,6 +130,9 @@ export async function getAllStories({ token, page, size, location = 0 } = {}) {
       status: response.status,
     };
   } catch (error) {
+    if (!navigator.onLine || error.name === 'TypeError' || (error.message && error.message.includes('fetch'))) {
+      setOfflineMode(true);
+    }
     return {
       error: true,
       message: error.message,
@@ -150,6 +154,9 @@ export async function getDetailStory({ id, token }) {
       status: response.status,
     };
   } catch (error) {
+    if (!navigator.onLine || error.name === 'TypeError' || (error.message && error.message.includes('fetch'))) {
+      setOfflineMode(true);
+    }
     return {
       error: true,
       message: error.message,

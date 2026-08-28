@@ -4,7 +4,6 @@ import { registerRoute } from 'workbox-routing';
 import { NetworkFirst } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
-import CONFIG from '../scripts/config';
 import logger from '../scripts/utils/logger';
 
 // Skip waiting & claim clients immediately
@@ -46,25 +45,6 @@ registerRoute(
     ],
   })
 );
-
-// Caching Respon API GET (Network First)
-if (CONFIG.API_URL) {
-  registerRoute(
-    ({ url, request }) => request.method === 'GET' && url.href.includes(CONFIG.API_URL),
-    new NetworkFirst({
-      cacheName: 'storytel-api-cache',
-      plugins: [
-        new CacheableResponsePlugin({
-          statuses: [0, 200],
-        }),
-        new ExpirationPlugin({
-          maxEntries: 100,
-          maxAgeSeconds: 7 * 24 * 60 * 60,
-        }),
-      ],
-    })
-  );
-}
 
 // Push Notification Event Handler
 self.addEventListener('push', (event) => {
