@@ -1,3 +1,5 @@
+import logger from './logger';
+
 export default class Camera {
   static isSupported() {
     return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
@@ -17,7 +19,7 @@ export default class Camera {
         label: device.label || `Kamera ${index + 1}`,
       }));
     } catch (error) {
-      console.warn('Gagal mendapatkan daftar kamera:', error);
+      logger.warning('Gagal mendapatkan daftar kamera:', error);
       return [];
     }
   }
