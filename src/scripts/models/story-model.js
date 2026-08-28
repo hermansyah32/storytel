@@ -34,6 +34,9 @@ export default class StoryModel {
         const cachedStories = await getAllStoriesFromDB();
         const finalStories = cachedStories.length > 0 ? cachedStories : response.listStory;
 
+        // Sort descending by createdAt (newest first)
+        finalStories.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
         return {
           ...response,
           data: finalStories.map((item) => new StoryModel(item)),
@@ -46,6 +49,7 @@ export default class StoryModel {
     // Fallback to IndexedDB cache when offline or API request fails
     const localStories = await getAllStoriesFromDB();
     if (localStories && localStories.length > 0) {
+      localStories.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
       return {
         error: false,
         message: 'Mengambil data dari penyimpanan lokal (IndexedDB)',
