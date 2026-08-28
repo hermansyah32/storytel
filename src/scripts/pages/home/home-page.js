@@ -140,7 +140,6 @@ export default class HomePage extends BasePage {
       selectedNameEl: document.getElementById('selected-city-name'),
       selectedCoordsEl: document.getElementById('selected-city-coords'),
       onSelect: (city) => {
-        this.#homeMap.panTo(city.lat, city.lon, 10);
         this.#homeMap.showTemporaryAddMarker(city.lat, city.lon, (mLat, mLng) => {
           this.showAddStoryForm(mLat, mLng, (storyData) => {
             this.#presenter.onSubmitStory(storyData);

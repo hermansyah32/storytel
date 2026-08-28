@@ -170,23 +170,14 @@ export default class HomeMap {
       this.#addMarkerMarker = null;
     }
 
-    if (this.#map) {
-      const currentZoom = this.#map.getZoom();
-      const targetZoom = currentZoom < 8 ? 10 : currentZoom;
-
-      const point = this.#map.project([lat, lng], targetZoom);
-      const targetPoint = L.point(point.x, point.y - 110);
-      const targetLatLng = this.#map.unproject(targetPoint, targetZoom);
-
-      this.#map.setView(targetLatLng, targetZoom, { animate: true });
-    }
+    if (!this.#map) return;
 
     const greenIcon = L.divIcon({
       className: 'custom-marker-leaflet',
       html: `
         <div class="custom-marker-wrapper green">
           <svg class="marker-svg" viewBox="0 0 24 36" width="30" height="42">
-            <path class="marker-path" d="M12 0C5.37 0 0 5.37 0 12c0 9.75 12 24 12 24s12-14.25 12-24C24 5.37 18.63 0 12 0z" />
+            <path class="marker-path" d="M12 0C5.37 0 0 5.37 0 12c0 9.75 12 24 12 24s12-14.25 12-24C24 5.37 18.63 0 12 0z" fill="#16a34a" />
             <circle cx="12" cy="12" r="4.5" fill="#ffffff" />
           </svg>
         </div>
@@ -196,31 +187,36 @@ export default class HomeMap {
       popupAnchor: [0, -48],
     });
 
-    const popupHtml = `
-      <div class="map-popup-add">
-        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--neutral-color); margin-bottom: 0.25rem;">Tambah Story Baru</h4>
-        <p style="font-size: 0.8rem; color: var(--text-color); margin-bottom: 0.5rem;">📍 (${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)})</p>
-        <button type="button" id="btn-add-story-popup" class="btn btn-success btn-block">
-          Tambahkan Story
-        </button>
-      </div>
+    const popupContainer = document.createElement('div');
+    popupContainer.className = 'map-popup-add';
+    popupContainer.innerHTML = `
+      <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--neutral-color); margin-bottom: 0.25rem;">Tambah Story Baru</h4>
+      <p style="font-size: 0.8rem; color: var(--text-color); margin-bottom: 0.5rem;">📍 (${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)})</p>
+      <button type="button" class="btn btn-success btn-block btn-add-story-popup">
+        Tambahkan Story
+      </button>
     `;
 
+    const btnAdd = popupContainer.querySelector('.btn-add-story-popup');
+    if (btnAdd) {
+      btnAdd.addEventListener('click', (evt) => {
+        evt.preventDefault();
+        if (typeof onAddClick === 'function') {
+          onAddClick(lat, lng);
+        }
+      });
+    }
+
     this.#addMarkerMarker = L.marker([lat, lng], { icon: greenIcon })
-      .bindPopup(popupHtml)
+      .bindPopup(popupContainer)
       .addTo(this.#map);
 
-    this.#addMarkerMarker.on('popupopen', () => {
-      const btnAdd = document.getElementById('btn-add-story-popup');
-      if (btnAdd) {
-        btnAdd.addEventListener('click', () => {
-          if (typeof onAddClick === 'function') {
-            onAddClick(lat, lng);
-          }
-        });
-      }
-    });
+    const targetZoom = Math.max(this.#map.getZoom(), 10);
+    const point = this.#map.project([lat, lng], targetZoom);
+    const targetPoint = L.point(point.x, point.y - 120);
+    const targetLatLng = this.#map.unproject(targetPoint, targetZoom);
 
+    this.#map.flyTo(targetLatLng, targetZoom, { duration: 0.8 });
     this.#addMarkerMarker.openPopup();
   }
 
