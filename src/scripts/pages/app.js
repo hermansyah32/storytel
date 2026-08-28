@@ -65,14 +65,21 @@ class App {
   }
 
   #updateNavigationUI(isAuthenticated) {
+    const subscribeMenu = document.querySelector('#subscribe-menu') || document.querySelector('#subscribe-button') || document.querySelector('.subscribe-button');
+    const subscribeItem = document.querySelector('.nav-subscribe-item');
+
     if (isAuthenticated) {
       showElement(this.#backdrop);
       showElement(this.#drawerButton);
       showElement(this.#navigationDrawer);
+      if (subscribeMenu) showElement(subscribeMenu);
+      if (subscribeItem) showElement(subscribeItem);
     } else {
       hideElement(this.#backdrop);
       hideElement(this.#drawerButton);
       hideElement(this.#navigationDrawer);
+      if (subscribeMenu) hideElement(subscribeMenu);
+      if (subscribeItem) hideElement(subscribeItem);
     }
   }
 

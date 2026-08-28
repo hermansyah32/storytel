@@ -5,6 +5,11 @@
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="shortcut icon" href="/favicon.png" />
+  <link rel="manifest" href="/app.webmanifest" />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="/images/logo-192.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap"
@@ -26,6 +31,19 @@
           <span class="brand-name">Storytel</span>
         </div>
         <ul id="nav-list" class="nav-list">
+          <li id="nav-install-item" class="nav-install-item hidden">
+            <a href="javascript:void(0)" id="install-pwa-button" class="nav-link" tabindex="0"
+              aria-label="Install Aplikasi Storytel">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-download-icon lucide-download">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" x2="12" y1="15" y2="3" />
+              </svg>
+              <span>Install App</span>
+            </a>
+          </li>
           <li class="nav-subscribe-item">
             <a href="javascript:void(0)" id="subscribe-menu" class="subscribe-button nav-link" tabindex="0">
               <svg class="unsubscribe-ring-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -115,6 +133,23 @@
         <line x1="12" x2="12.01" y1="20" y2="20" />
       </svg>
       <span>Anda sedang berada dalam mode offline (Tanpa Koneksi Internet).</span>
+    </div>
+  </div>
+  <div id="pwa-install-banner" class="pwa-install-banner hidden" role="dialog" aria-labelledby="pwa-banner-title"
+    aria-describedby="pwa-banner-desc">
+    <div class="pwa-banner-content">
+      <img src="/images/logo-192.png" alt="Logo Storytel" class="pwa-banner-icon" />
+      <div class="pwa-banner-text">
+        <h3 id="pwa-banner-title" class="pwa-banner-title">Install Aplikasi Storytel</h3>
+        <p id="pwa-banner-desc" class="pwa-banner-desc">Pasang aplikasi di perangkat Anda untuk akses lebih cepat & mode
+          offline.</p>
+      </div>
+    </div>
+    <div class="pwa-banner-actions">
+      <button type="button" id="btn-pwa-dismiss" class="btn btn-secondary btn-sm"
+        aria-label="Tutup penawaran instalasi">Nanti</button>
+      <button type="button" id="btn-pwa-install" class="btn btn-primary btn-sm"
+        aria-label="Install aplikasi Storytel sekarang">Install</button>
     </div>
   </div>
 </body>

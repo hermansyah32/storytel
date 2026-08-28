@@ -173,7 +173,7 @@ export async function sendNotification(title, options = {}) {
     }
 }
 
-export async function updateSubscribeButtonUI(targetElements = '.subscribe-button, .nav-subscribe-item') {
+export async function updateSubscribeButtonUI(targetElements = '.subscribe-button, #subscribe-button, #subscribe-menu, .nav-subscribe-item') {
     const isSubscribed = await isCurrentPushSubscriptionAvailable();
 
     const elements = typeof targetElements === 'string'
@@ -197,18 +197,32 @@ export async function updateSubscribeButtonUI(targetElements = '.subscribe-butto
 }
 
 export async function setupSubscription(
-    subscribeButtons = '.subscribe-button',
+    subscribeButtons = '.subscribe-button, #subscribe-button, #subscribe-menu',
     subscribeItemElement = document.querySelector('.nav-subscribe-item')
 ) {
-    if (!isUserAuthenticated()) {
-        if (subscribeItemElement) {
-            subscribeItemElement.classList.add('hidden');
+    const authenticated = isUserAuthenticated();
+
+    const targets = document.querySelectorAll(typeof subscribeButtons === 'string' ? subscribeButtons : '.subscribe-button');
+    targets.forEach((el) => {
+        if (el) {
+            if (authenticated) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
         }
-        return;
-    }
+    });
 
     if (subscribeItemElement) {
-        subscribeItemElement.classList.remove('hidden');
+        if (authenticated) {
+            subscribeItemElement.classList.remove('hidden');
+        } else {
+            subscribeItemElement.classList.add('hidden');
+        }
+    }
+
+    if (!authenticated) {
+        return;
     }
 
     await updateSubscribeButtonUI();
